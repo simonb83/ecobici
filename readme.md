@@ -1,8 +1,34 @@
-### 38 Million Ecobici Rides
+### Analysis of 38 Million Ecobici Rides in Mexico City
 
-Accompanying code for blog post: [ecobocic](www.)
+Accompanying code for blog post: [38 Million Ecobici Trips in Mexico City](www.)
 
-#### Instructions
+Also included are shapefiles for Mexico City streets and colonias (neighberhoods), filtered to only include those relevant to the parts of the city covered by Ecobici, as well as json file of Ecobici stations.
+
+__Streets:__
+
+```
+/data/Streets/cdmx
+```
+
+Raw data comes from Open Streetmap data and was downloaded from http://download.geofabrik.de/osm/north-america/mexico-latest-free.shp.zip
+
+__Colonias:__
+
+```
+/data/Colonias/df
+```
+
+Raw data was downloaded from http://shapesdemexico.wixsite.com/shapes/agebs
+
+__Stations:__
+
+```
+/data/stations.json
+```
+
+Obtained from https://www.ecobici.cdmx.gob.mx/es/mapa-de-cicloestaciones
+
+### Instructions
 
 ***Getting set up***
 
@@ -79,7 +105,3 @@ pgsql2shp -f "hexagons/hexagons" -h 'HOST' -u 'USER' ecobici "SELECT hexagon_id,
 ```bash
 python analysis.py
 ```
-
-5. Streets and Colonias shapefile
-
-
