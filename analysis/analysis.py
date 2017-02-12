@@ -1,8 +1,17 @@
 import matplotlib
 matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
+import matplotlib as mpl
+import matplotlib.cm
 import psycopg2
 import pandas as pd
+import matplotlib.ticker as tkr
+import numpy as np
+from mpl_toolkits.basemap import Basemap
+from matplotlib.patches import Polygon
+import matplotlib.patches as patches
+from matplotlib.collections import PatchCollection
+from matplotlib.colors import Normalize
 
 plt.style.use("ggplot")
 plt.rcParams['xtick.labelsize'] = 15
@@ -285,6 +294,13 @@ gender = pd.DataFrame(gender)
 gender.columns = [d[0] for d in cur.description]
 
 
+def centeroidnp(arr):
+    length = arr.shape[0]
+    sum_x = np.sum(arr[:, 0])
+    sum_y = np.sum(arr[:, 1])
+    return sum_x / length, sum_y / length
+
+
 def female_color(x):
     if x >= 30:
         return '#980043'
@@ -321,7 +337,7 @@ df_poly = pd.DataFrame({
     'shapes': [Polygon(np.array(shape), True) for shape in m.hexagons],
     'hexagon_id': [c['HEXAGON_ID'] for c in m.hexagons_info]})
 
-df_poly = df_poly.merge(df, on='hexagon_id', how='left')
+df_poly = df_poly.merge(gender, on='hexagon_id', how='left')
 df_poly = df_poly.fillna(0)
 for x, shape in zip(df_poly['female_pc'], m.hexagons):
     patch = Polygon(np.array(shape), True, facecolor=female_color(
@@ -434,13 +450,6 @@ results = pd.DataFrame(cur.fetchall())
 results.columns = [d[0] for d in cur.description]
 results['frac'] = results['frac'].apply(lambda x: float(x))
 results['frac_cat'] = pd.cut(results['frac'], 6, labels=[i for i in range(6)])
-
-
-def centeroidnp(arr):
-    length = arr.shape[0]
-    sum_x = np.sum(arr[:, 0])
-    sum_y = np.sum(arr[:, 1])
-    return sum_x / length, sum_y / length
 
 
 def magical_transport_color(x):
@@ -703,7 +712,7 @@ fig.text(0.5, 0.03, 'Rider Age in Years',
          va='center', ha='center', fontsize=22)
 fig.text(0.05, 0.5, 'Trip Duration in Seconds',
          va='center', rotation='vertical', fontsize=22)
-plt.savefig("../images/ecobici_duration_v_age.png",
+plt.savefig("images/ecobici_duration_v_age.png",
             dpi=200, bbox_inches='tight')
 
 
@@ -725,6 +734,7 @@ res = np.array(cur.fetchall()).astype(float)
 
 bins = [60, 600, 1200, 1800, 2400, 3000, 3600]
 labels = ['1-10', '10-20', '20-30', '30-40', '40-50', '50-60']
+hist, bins = np.histogram(res, bins=bins)
 hist = hist / len(res)
 fig, ax = plt.subplots(figsize=(12, 6))
 width = 0.7 * (bins[1] - bins[0])
@@ -740,5 +750,5 @@ for x, y in zip(center, hist):
             ha='center', va='bottom', fontsize=15)
 fig.text(0.5, 0.04, 'Trip Duration (Minutes)',
          va='center', ha='center', fontsize=16)
-plt.savefig("../images/ecobici_subset_distribution.png",
+plt.savefig("images/ecobici_subset_distribution.png",
             dpi=200, bbox_inches='tight')
